@@ -26,6 +26,10 @@ int romanToDecimal(char ch) {
 int convertRomanToDecimal(const char roman[]) {
     int total = 0;
     for (int i = 0; i < strlen(roman); i++) {
+        if (romanToDecimal(roman[i]) == 0) {
+            printf("Invalid Roman numeral: %s\n", roman);
+            return -1; // Return -1 for invalid input
+        }
         if (romanToDecimal(roman[i]) < romanToDecimal(roman[i + 1])) {
             total -= romanToDecimal(roman[i]);
         } else {
@@ -42,6 +46,17 @@ void numberToWords(int num, char *words) {
     static const char *tens[] = {"", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"};
     static const char *thousands[] = {"", "Thousand", "Million"};
 
+    if (num == 0) {
+        strcpy(words, "Zero");
+        return;
+    } else if (num < 0) {
+        strcpy(words, "Negative ");
+        char positiveWords[500];
+        numberToWords(-num, positiveWords);
+        strcat(words, positiveWords);
+        return;
+    }
+
     char temp[500] = "", final_result[500] = "";
     int part = 0;
 
@@ -51,31 +66,26 @@ void numberToWords(int num, char *words) {
 
         if (n != 0) {
             if (n / 100 > 0) {
-                printf("%s Hundred ", ones[n / 100]);
                 strcat(segment, ones[n / 100]);
                 strcat(segment, " Hundred ");
             }
 
             n %= 100;
             if (n >= 10 && n <= 19) {
-                printf("%s ", teens[n - 10]);
                 strcat(segment, teens[n - 10]);
                 strcat(segment, " ");
             } else {
                 if (n / 10 > 0) {
-                    printf("%s ", tens[n / 10]);
                     strcat(segment, tens[n / 10]);
                     strcat(segment, " ");
                 }
                 if (n % 10 > 0) {
-                    printf("%s ", ones[n % 10]);
                     strcat(segment, ones[n % 10]);
                     strcat(segment, " ");
                 }
             }
 
             if (thousands[part][0] != '\0') {
-                printf("%s ", thousands[part]);
                 strcat(segment, thousands[part]);
                 strcat(segment, " ");
             }
@@ -97,7 +107,9 @@ int performArithmetic(int num1, int num2, char operation) {
         case '+': return num1 + num2;
         case '-': return num1 - num2;
         case '*': return num1 * num2;
-        default: return 0;
+        default:
+            printf("Unsupported operation: %c\n", operation);
+            return 0;
     }
 }
 
@@ -105,7 +117,7 @@ int performArithmetic(int num1, int num2, char operation) {
 FILE* openFile(const char *filename, const char *mode) {
     FILE *file = fopen(filename, mode);
     if (file == NULL) {
-        printf("Error opening file: %s\n", filename);
+        perror("Error opening file");
         return NULL;
     }
     return file;
@@ -120,6 +132,11 @@ void processFile(FILE *inputFile, FILE *outputFile) {
     while (fscanf(inputFile, "%s %c %s", operation.roman1, &operation.operation, operation.roman2) != EOF) {
         decimal1 = convertRomanToDecimal(operation.roman1);
         decimal2 = convertRomanToDecimal(operation.roman2);
+
+        if (decimal1 == -1 || decimal2 == -1) {
+            fprintf(outputFile, "Invalid Roman numeral input.\n");
+            continue;
+        }
 
         result = performArithmetic(decimal1, decimal2, operation.operation);
         numberToWords(result, resultWords);

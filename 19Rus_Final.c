@@ -10,7 +10,6 @@ typedef struct {
 
 // Function to convert a single Roman numeral character to its decimal value
 int romanToDecimal(char ch) {
-    // Match each Roman numeral character to its corresponding decimal value
     switch (ch) {
         case 'I': return 1;
         case 'V': return 5;
@@ -52,27 +51,38 @@ void numberToWords(int num, char *words) {
 
         if (n != 0) {
             if (n / 100 > 0) {
-                sprintf(segment + strlen(segment), "%s Hundred ", ones[n / 100]);
+                printf("%s Hundred ", ones[n / 100]);
+                strcat(segment, ones[n / 100]);
+                strcat(segment, " Hundred ");
             }
 
             n %= 100;
             if (n >= 10 && n <= 19) {
-                sprintf(segment + strlen(segment), "%s ", teens[n - 10]);
+                printf("%s ", teens[n - 10]);
+                strcat(segment, teens[n - 10]);
+                strcat(segment, " ");
             } else {
                 if (n / 10 > 0) {
-                    sprintf(segment + strlen(segment), "%s ", tens[n / 10]);
+                    printf("%s ", tens[n / 10]);
+                    strcat(segment, tens[n / 10]);
+                    strcat(segment, " ");
                 }
                 if (n % 10 > 0) {
-                    sprintf(segment + strlen(segment), "%s ", ones[n % 10]);
+                    printf("%s ", ones[n % 10]);
+                    strcat(segment, ones[n % 10]);
+                    strcat(segment, " ");
                 }
             }
 
             if (thousands[part][0] != '\0') {
-                sprintf(segment + strlen(segment), "%s ", thousands[part]);
+                printf("%s ", thousands[part]);
+                strcat(segment, thousands[part]);
+                strcat(segment, " ");
             }
         }
 
-        sprintf(temp, "%s%s", segment, final_result);
+        strcpy(temp, segment);
+        strcat(temp, final_result);
         strcpy(final_result, temp);
         num /= 1000;
         part++;
